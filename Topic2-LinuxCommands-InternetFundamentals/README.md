@@ -40,6 +40,7 @@
     - Chỉ lấy phân thay đổi, nhanh tiết kiệm băng thông
 
 - Cat Command:
+
   ![alt text](image-2.png)
   - Xem nội dung 1 file.
     - cat file.txt
@@ -133,6 +134,7 @@
 
 - Sort Command:
   - Theo thứ tự tăng dần.
+
     ![alt text](image-11.png)
     - sort file.txt: Sắp xếp tăng dần (ascending)
 
@@ -166,35 +168,112 @@
   - Đếm số từ: wc -w file.txt
 
 - Chmod, Chown, Chattr Command:
-  - Phân quyền bằng số và chữ.
-  - Đổi owner user/group.
-  - Set Immutable Attribute.
+  - Phân quyền bằng số và chữ. - chmod 755 file # phân quyền số(4:read, 2:write, 1: excute) - chmod u+x file # phân quyền chữ
+    Ký hiệu Nghĩa
+    u user (owner)
+    g group
+    o others
+    (+) thêm quyền
+    (-) xóa quyền
+    (=) gán quyền
+    - Ví dụ: chmod g-w file.txt: bỏ quyền write của group
+- Đổi owner user/group.
+  - chown user:group file # đổi owner
+- Set Immutable Attribute.
+  - chattr +i file # immutable (không sửa/xóa được)
+  - Gỡ immutable: chattr -i file.txt
 
-- Find Command:
+- Find Command: Tìm file/folder theo điều kiện + có thể xử lý luôn (chmod, delete, etc,..)
   - Tìm file đuôi `.log`.
+    - find . -name "\*.log" (chấm là bắt đầu tìm từ thư mục hiện tại)
+
+    ![alt text](image-17.png)
+
   - Tìm folder tên `abc`.
+    - find . -type d -name "abc"
   - Tìm file tên `abc`.
+    - find . -type f -name "abc"
   - Tìm file `abc` và đặt quyền read only.
+    - find . -type f -name "abc" -exec chmod 444 {} \;
+
+- Ví dụ thực tế
+  - Tìm tất cả log và xoá
+    find . -name "\*.log" -delete
+  - Tìm file lớn hơn 100MB
+    find . -type f -size +100M
 
 - Cp Command:
-  - Copy file.
-  - Copy folder.
+
+![alt text](image-18.png)
+
+- Copy file:
+  - Copy file:cp file.txt newfile.txt
+  - Copy file vào thư mục khác: cp file.txt /home/duc/
+- Copy folder:
+
+![alt text](image-19.png) - cp -r folder1/ folder2/
 
 - Mv Command:
   - Di chuyển/đổi tên file/folder.
+    - Đổi tên file: mv file.txt newfile.txt
+    - Di chuyển file: mv file.txt /home/duc/
+
+    - Di chuyển folder: mv folder1/ /home/duc/
 
 - Cut Command:
-  - Lấy ký tự thứ `<n>`.
-  - Lấy từ ký tự `<n>` trở về sau.
-  - Lấy đến ký tự thứ `<n>`.
 
-- Dig Command:
+![alt text](image-20.png)
+
+- Lấy ký tự thứ `<n>`.
+  - cut -c 3 file.txt (lấy ký tự thứ 3 của mỗi dòng)
+- Lấy từ ký tự `<n>` trở về sau.
+  - cut -c 3- file.txt (từ ký tự 3 -> hết dòng)
+- Lấy đến ký tự thứ `<n>`.
+  - cut -c -5 file.txt: lấy từ đầu tới ký tự thứ 5
+- Ví dụ: cut -d ':' -f 1 file.txt + cắt file theo dấu : và lấy cột thứ 1 + -d ':": ký tự phân tách nghĩa là mỗi dòng sẻ bị tách ra theo dấu ; + -f 1 là cột lấy cột một
+  dòng cột 1 cột 2 cột 3
+  root:x:0:0 root x 0
+  user:x:1000:1000 user x 1000
+
+- Dig Command: truy vấn DNS (Domain Name System) để xem record của domain
   - Kiểm tra record A, MX, NS.
+
+  ![alt text](image-21.png)
+  - Bản ghi A (Address) dùng để ánh xạ một tên miền (hostname) sang một địa chỉ IPv4
+  - Giải thích: Vietnix có 2 địa chỉ IP công cộng. Con số 106 là TTL (Time To Live) tính bằng giây — nghĩa là kết quả này sẽ được lưu trong cache máy bạn thêm 106 giây nữa trước khi phải hỏi lại server DNS.
+  - SERVER: 127.0.0.53#53. Đây là DNS resolver nội bộ của Ubuntu (systemd-resolved).
+
+  ![alt text](image-22.png)
+  - Bản ghi MX (Main Exchanger) chỉ định các server chịu trách nhiệm nhận email thay mặt cho tên miền đó
+  - Số ưu tiên (Priority): 1, 5, 10. Số càng nhỏ thì độ ưu tiên càng cao. Mail server gửi đến sẽ thử liên lạc với server có độ ưu tiên 1 trước, nếu lỗi sẽ thử tiếp server có độ ưu tiên 5.
+
+  ![alt text](image-23.png)
+  - Bản ghi NS (Name Server) cho biết server nào đang nắm giữ quyền quản lý (Authoritative) các bản ghi DNS của tên miền này.
+
   - Kiểm tra record A, MX, NS với custom DNS.
+
+  ![alt text](image-24.png)
+  - dig @8.8.8.8 vietnix.vn A: Dùng DNS của google
+  - Mặc định lệnh dig sẻ hỏi DNS Server được cấu hình trong máy thường là Router hoặc nhà mạng ISP. Sử dụng DNS của google thì nhanh hơn và cực kỳ ổn định. Ngoài 8.8.8.8 của google còn có của Cloudflare DNS (1.1.1.1) tốc độ phản hồi nhanh và bảo mật quyền riêng tư tốt
 
 - Tar/Zip/Unzip Command:
   - Nén/giải nén `tar.gz`.
+    - Nén: tar -czvf file.tar.gz folder/
+      Option Ý nghĩa
+      -c create (tạo file nén)
+      -z gzip compression
+      -v verbose (hiển thị quá trình)
+      -f file name
+    - Giải nén: tar -xzvf file.tar.gz
+      Option Ý nghĩa
+      -x extract (giải nén)
+      -z gzip
+      -v verbose
+      -f file
   - Nén/giải nén `.zip`.
+    - Nén file: zip file.zip file.txt
+    - Nén folder: zip -r folder.zip folder/
+    - Giải nén: unzip file.zip
 
 - Mount/Umount Command:
   - Thêm ổ cứng `sdb` ~ 5gb.
