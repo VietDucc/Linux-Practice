@@ -211,7 +211,9 @@
   - Copy file vào thư mục khác: cp file.txt /home/duc/
 - Copy folder:
 
-![alt text](image-19.png) - cp -r folder1/ folder2/
+![alt text](image-19.png)
+
+- cp -r folder1/ folder2/
 
 - Mv Command:
   - Di chuyển/đổi tên file/folder.
@@ -266,10 +268,15 @@
       -f file name
     - Giải nén: tar -xzvf file.tar.gz
       Option Ý nghĩa
+
       -x extract (giải nén)
+
       -z gzip
+
       -v verbose
+
       -f file
+
   - Nén/giải nén `.zip`.
     - Nén file: zip file.zip file.txt
     - Nén folder: zip -r folder.zip folder/
