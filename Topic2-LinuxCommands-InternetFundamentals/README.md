@@ -362,3 +362,113 @@
   - Xem dung lượng disk: df -h
   - Phân vùng `/` là gì:
     - Phân vùng gốc của hệ điều hành Linux
+    - Chúa hệ điều hành: kernel, system files, config, user data
+
+# SSL
+
+- SSL là gì?
+  - SSL (Hiện nay là TLS): là giao thức giúp mã hóa dữ liệu giữa client và server tránh bên thứ 3 bắt và đọc được
+- Có bao nhiêu cách xác thực SSL?
+  - Có 3 loại chính:
+    - Domain Validation (DV): chỉ xác minh domain, nhanh, phổ biến
+    - Organization Validation (OV): xác minh tổ chức/công ty
+    - Extended Validation: xác minh mạnh nhất, hiển thị tên công ty trên trình duyệt
+
+- CSR file dùng để làm gì?
+  - Certificate Signing Request: File gửi lên CA để xin SSL certificate(chứa: domain name, public key, thông tin công ty)
+
+- Gen file CSR và request SSL cho domain `tech.training.vietnix.tech` bằng OpenSSL.
+
+  ![alt text](image-30.png)
+  - tech_training.key (Private Key): Dùng để giải mã dữ liệu. Khi user gửi dữ liệu đã mã hóa đến server, chỉ có chìa khóa này mới mở được.
+  - tech_training.csr (Tờ khai): Chứa Public Key (ổ khóa).
+  - Các bước:
+    - Tạo file Private Key và gửi CSR đi.
+    - CA trả về file Certificate.
+    - Cài cả Private Key và Certificate vào Web Server (Nginx/Apache).
+    - Website của bạn chính thức có HTTPS.
+
+  - Hacker có thể dùng các kỹ thuật như Man-in-the-middle để "nghe lén" và đọc trộm toàn bộ dữ liệu này.
+
+  - Trình duyệt (Chrome, Edge) sẽ báo "Not Secure" khiến người dùng sợ không dám vào.
+
+  - Khi có HTTPS: Toàn bộ dữ liệu được mã hóa thành các dãy ký tự vô nghĩa. Dù hacker có bắt được gói tin cũng không thể đọc được nếu không có cái tech_training.key mà bạn đang giữ trên server.
+
+  ![alt text](image-31.png)
+  - Đây là chứng chỉ Self-signed
+  - Làm sao client đọc được:
+    - Client tạo một mã ngẫu nhiên (Symmetric Key), Lấy cái Public Key của Server khóa lại, gửi cho Server, Server có Private Key nên mở được ổ khóa đó (theo cơ chế cái nào khóa được thì cái kia mở được).
+
+- Pem file là gì?
+  - PEM = định dạng file certificate chứa certificate hoặc key dạng base64
+
+- Private key SSL là gì?
+  - Vai trò: Là "chìa khóa riêng" dùng để giải mã dữ liệu mà Client đã mã hóa bằng Public Key.
+
+  - Bảo mật: Private Key phải được lưu trữ bí mật trên server. Nếu file này bị lộ, hacker có thể giải mã toàn bộ dữ liệu truyền giữa Client và Server, khiến HTTPS trở nên vô dụng.
+
+  - Mất mát: Nếu làm mất file Private Key, không thể sử dụng chứng chỉ .crt đi kèm nữa mà phải tạo lại CSR và xin cấp mới từ đầu.
+
+- PFX file là gì? Cách chuyển từ CRT sang PFX.
+  - PFX (Personal Information Exchange), còn được gọi là PKCS#12, là định dạng lưu trữ nhị phân (Binary).
+
+  - Đặc điểm: Khác với PEM, PFX cho phép lưu trữ gộp cả Certificate và Private Key vào trong một file duy nhất.
+
+  - Bảo mật: Tệp PFX thường được bảo vệ bằng một mật khẩu (Password) để ngăn việc truy cập trái phép vào Private Key bên trong.
+
+  - Sử dụng: Thường dùng cho các hệ thống của Microsoft như Windows Server (IIS) hoặc các dịch vụ đám mây như Azure.
+
+# DOMAIN
+
+- Domain là gì: là tên định danh cuả một địa chỉ IP trên mạng internet
+- Các trạng thái của domain.
+  - Available: Tên miền chưa có ai mua, bạn có thể đăng ký.
+
+  - Registered/Active: Đã được đăng ký và đang hoạt động.
+
+  - Expired: Đã hết hạn nhưng vẫn có thể gia hạn (thường trong 30 ngày đầu).
+
+  - Redemption: Giai đoạn "chuộc", chi phí gia hạn lúc này rất cao.
+
+  - Pending Delete: Giai đoạn chờ xóa vĩnh viễn để quay lại trạng thái Available.
+
+- Subdomain là gì: Là phần mở rộng của tên miền chính. Ví dụ: tech.vietnix.vn thì tech là subdomain. Nó giúp phân chia các dịch vụ khác nhau trên cùng một tên miền.
+
+- Virtual Hosts là gì: Là cấu hình trên Web Server (Nginx/Apache) cho phép chạy nhiều website khác nhau trên cùng một máy chủ (cùng 1 IP). Web server sẽ dựa vào tên Domain trong request của client để dẫn đến đúng thư mục chứa code tương ứng.
+
+# Mail Server
+
+- Tìm hiểu MX Record.
+  - Bản ghi DNS chỉ định server nào sẽ chịu trách nhiệm nhận email cho tên miền đó. Khi ai đó gửi mail đến @vietnix.vn, server gửi sẽ tra cứu MX Record của vietnix.vn để biết phải đẩy thư đi đâu.
+  - Bộ ba xác thực Mail (Chống SPAM):
+    - SPF (Sender Policy Framework): Danh sách các IP được phép gửi mail thay mặt tên miền.
+
+    - DKIM (DomainKeys Identified Mail): Chữ ký số đính kèm vào email để đảm bảo nội dung thư không bị sửa đổi trên đường đi.
+
+    - PTR (Pointer Record): Ngược lại với bản ghi A, dùng để phân giải từ IP ra Domain. Thường dùng để xác minh Server gửi mail có "chính chủ" hay không.
+
+# DNS
+
+- DNS là gì: Biên dịch tên miền thành địa chỉ IP
+- Các loại record DNS.
+  - A: Trỏ Domain về IPv4.
+
+  - AAAA: Trỏ Domain về IPv6.
+
+  - CNAME: Trỏ một Domain về một Domain khác (Alias).
+
+  - TXT: Dùng để chứa thông tin văn bản (xác thực SPF, xác thực sở hữu domain).
+
+- Nguyên tắc làm việc của DNS & Cách phân giải địa chỉ DNS.
+
+  - Quá trình này diễn ra theo thứ tự "từ phải sang trái" và phân cấp:
+    - Local Cache / Hosts file: Máy kiểm tra xem đã biết IP này chưa.
+
+    - Recursive Resolver: Nếu không biết, máy hỏi ISP (nhà mạng).
+
+    - Root Name Server: ISP hỏi server gốc (Root) để biết ai quản lý đuôi .vn.
+
+    - TLD Name Server: Hỏi server quản lý đuôi .vn để biết server của Vietnix ở đâu.
+
+    - Authoritative Name Server: Cuối cùng hỏi trực tiếp server của Vietnix để lấy địa chỉ IP chính xác.
+
