@@ -6,21 +6,21 @@ This repository contains my daily practice and exercises while learning Linux co
 
 ## 📅 Progress
 
-### ✅ Day 01
+### Day 01
 
 - Topic 1: Knowledge linux
 
-### ✅ Day 02
+### Day 02
 
 - Topic 2: Linux Commands & Internet Fundamentals
   - Basic Linux commands
   - Networking basics (ping, hping3)
   - SSH, SCP, rsync usage
 
-### ⏳ Day 03
+### Day 03
 
 - (updating...)
 
-## 🚀 Author
+## Author
 
 - Duc (Ryo)
