@@ -6,7 +6,61 @@
 - Nginx và Apache:
   - Apache xử lý kết nối bằng một tiến trình riêng biệt gây tốn tài nguyên, Nginx sử dụng mô hình hướng sự kiện event-driven. Cơ chế này cho phép xử lí hàng trăm nghìn kết nối đồng thời với lượng tiêu thị RAM và CPU cực thấp.
   - Ngoài ra là máy chủ xử lí các yêu cầu HTTP và file tĩnh, có thể dùng làm load balance, proxy ngược.
-    -
+  -
+- L (Linux): Hệ điều hành gốc (Bạn đang dùng Ubuntu 22.04). Nó quản lý tài nguyên phần cứng, mạng và bộ nhớ.
+
+- E (Nginx): Đọc là Engine-X. Đây là trái tim của mô hình. Nginx đóng vai trò là Web Server, tiếp nhận các yêu cầu (Request) từ trình duyệt.
+
+- M (MySQL): Hệ quản trị cơ sở dữ liệu. Nơi lưu trữ thông tin có cấu trúc của WordPress và Laravel.
+
+- P (PHP): Ngôn ngữ xử lý logic. Trong mô hình LEMP, nó chạy dưới dạng một dịch vụ riêng biệt gọi là PHP-FPM (FastCGI Process Manager).
+
+- Luồng xử lý dữ liệu:
+  - Client gửi Request. Request này đến cổng 443 (https) của VPS
+  - Nginx tiếp nhận: Nginx xem file cấu hình trong sites-enaboled để biết thư mục gốc nằm ở đâu
+  - Nếu là File tĩnh (Ảnh, CSS, JS): Nginx tự mình trả về luôn cho trình duyệt.
+  - Nếu là File động (.php): Nginx không tự đọc được. Nó sẽ chuyển (Proxy) yêu cầu này sang PHP-FPM thông qua một "đường ống" gọi là Unix Socket
+  - PHP-FPM nhận code, thực thi logic, kết nối với MySQL nếu cần lấy dữ liệu
+  - PHP đóng gói thành HTML, gửi ngược lại cho Nginx. Nginx gửi về trình duyệt.
+
+- Nếu có nhiều backend thì làm sao Nginx biết Request đó của be nào.
+  - Ví dụ trường hợp một domain có nhiều backend
+
+```bash
+example.com/api → NodeJS
+example.com/admin → Spring
+example.com/ → React
+
+# Nginx config
+server {
+    listen 80;
+    server_name example.com;
+
+    location /api/ {
+        proxy_pass http://localhost:3000;
+    }
+
+    location /admin/ {
+        proxy_pass http://localhost:8080;
+    }
+
+    location / {
+        proxy_pass http://localhost:5173;
+    }
+}
+```
+
+- Nginx dựa vào path (URL) để định tuyến request đến các backend tương ứng. Trong trường hợp này, Nginx đóng vai trò reverse proxy và có thể được xem như một API Gateway đơn giản trong mô hình microservices, giúp phân tách và điều phối request đến nhiều service khác nhau.
+
+- Ngoài ra, Nginx còn có thể thực hiện load balancing, sử dụng các thuật toán như round-robin để phân phối request đều giữa các backend, giúp tăng khả năng chịu tải và tính sẵn sàng của hệ thống.
+
+- Quy trình kết nối giữa client và nginx nếu có https
+  - client gửi request
+  - Nginx gửi certificate (có public key)
+  - Client kiểm tra có hợp lệ có đúng domain có bi fake không
+  - Client: tạo một khóa tạm thời symmetric key
+  - Mã hóa bằng public key và chỉ có private key của server mới mở được
+  - Sau đó chỉ dùng symmetric encryption (AES)
 
 ## Table of Contents
 
