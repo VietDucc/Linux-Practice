@@ -2,6 +2,12 @@
 
 ## Executive Summary
 
+- LEMP là một bộ công nghệ phổ biến được thiết kế để vận hành và quản lý các ứng dụng web động. Hệ thống này đảm nhiệm toàn bộ quy trình fullstack
+- Nginx và Apache:
+  - Apache xử lý kết nối bằng một tiến trình riêng biệt gây tốn tài nguyên, Nginx sử dụng mô hình hướng sự kiện event-driven. Cơ chế này cho phép xử lí hàng trăm nghìn kết nối đồng thời với lượng tiêu thị RAM và CPU cực thấp.
+  - Ngoài ra là máy chủ xử lí các yêu cầu HTTP và file tĩnh, có thể dùng làm load balance, proxy ngược.
+    -
+
 ## Table of Contents
 
 1. Xây dựng mô hình LEMP: Cài dặt Linux, Nginx, MySQL và PHP 8.1
