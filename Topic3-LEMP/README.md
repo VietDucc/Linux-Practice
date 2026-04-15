@@ -247,13 +247,13 @@ SET GLOBAL validate_password.policy=0;
 SET GLOBAL validate_password.length=4;
 
 
--- Nếu lệnh này báo "User already exists", không sao cả, làm tiếp lệnh dưới
+
 CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '1111';
 
 # 3. Cấp quyền tối cao cho user root từ xa
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 
--- 4. Áp dụng thay đổi ngay lập tức
+
 FLUSH PRIVILEGES;
 
 # Kiem tra ở máy khác
