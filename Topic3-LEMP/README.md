@@ -102,13 +102,37 @@ server {
 - Giải thích file:
   - Lắng nghe HTTP (Port 80)
   - root: thư muc gốc nơi chứ code
-- Tạo một file index.html để kiểm tra
 
-![alt text](image-5.png)
+- Cài đặt wordpress
 
-- Từ internet truy cập tên miền kết quả được file html
+```bash
+CREATE DATABASE wordpress_db;
+EXIT;
 
-![alt text](image-6.png)
+# Tải và giải nén wordpress
+cd /var/www/wp.vietduc.vietnix.tech
+# Xóa file index.html cũ
+rm index.html
+# Tải WordPress
+wget https://wordpress.org/latest.tar.gz
+# Giải nén
+tar -xvf latest.tar.gz
+# Di chuyển code ra thư mục gốc và xóa thư mục thừa
+mv wordpress/* .
+rm -rf wordpress latest.tar.gz
+
+# Cấp quyền
+sudo chown -R www-data:www-data /var/www/wp.vietduc.vietnix.tech
+sudo chmod -R 755 /var/www/wp.vietduc.vietnix.techduoc
+```
+
+![alt text](image-15.png)
+
+- Password WordPress: gDuoAMGwvxsFz2GAng
+
+- Kết quả:
+
+![alt text](image-16.png)
 
 - Cấu hình cho Laravel:
 
@@ -242,20 +266,23 @@ bind-address = 0.0.0.0
 sudo mysql -u root -p
 
 ## Cập nhật user root để chấp nhận kết nối từ xa
-# 1. Cho phép dùng mật khẩu đơn giản
+# Cho phép dùng mật khẩu đơn giản
 SET GLOBAL validate_password.policy=0;
 SET GLOBAL validate_password.length=4;
 
-
-
 CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '1111';
 
-# 3. Cấp quyền tối cao cho user root từ xa
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
-
 
 FLUSH PRIVILEGES;
 
+# Đổi mật khẩu
+ALTER USER 'root'@'%' IDENTIFIED BY 'Vietnix123.';
+
+# Đổi cho user root chạy nội bộ (localhost)
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Vietnix443.';
+
+FLUSH PRIVILEGES;
 # Kiem tra ở máy khác
 mysql -h 221.132.21.144 -u root -p
 ```
