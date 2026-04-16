@@ -5,7 +5,6 @@
 1. Chuẩn bị môi trường và Giải nén Source Code
 
 Tiến hành cài đặt các công cụ cần thiết và chuẩn bị cấu trúc thư mục lưu trữ cho các dự án WordPress và Laravel.
-Bash
 
 # Cập nhật hệ thống và cài đặt unzip
 
@@ -341,7 +340,6 @@ root@training-vietduc:/etc/apache2/sites-available# cat vietduc_apps.conf
 
 ![alt text](image-10.png)
 
--
 
 - Kết quả truy cập https:
 
