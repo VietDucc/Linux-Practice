@@ -105,10 +105,10 @@ root@training-vietduc:/etc/nginx/sites-available# cat laravel.vietduc.vietnix.te
 server {
     listen 80;
     server_name laravel.vietduc.vietnix.tech;
-    root /var/www/laravel.vietduc.vietnix.tech/public;
+    root /var/www/laravel.vietduc.vietnix.tech/public; # Duong dan toi thu muc ma nguon
 
 
-    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ {
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ { # Xu li file tinh
         try_files $uri =404;
         expires 30d;
         add_header Cache-Control "public, no-transform";
@@ -116,7 +116,9 @@ server {
 
     # Forward HTTP sang Apache port 8080 (HTTP)
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        proxy_pass http://127.0.0.1:8080; # MOi requesst ko phai file tinh se đuocay sang apache o cong 8080
+
+        # Gui thong tin thuc te cua nguoi dung
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -126,10 +128,11 @@ server {
 ## Laravel
 # HTTPS -> HTTPS
 server {
-    listen 443 ssl;
+    listen 443 ssl;`
     server_name laravel.vietduc.vietnix.tech;
     root /var/www/laravel.vietduc.vietnix.tech/public;
 
+    # Su dung ching chi tai /etc/... de ma hoa duong truyen giua nginx va client
     ssl_certificate /etc/letsencrypt/live/laravel.vietduc.vietnix.tech/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/laravel.vietduc.vietnix.tech/privkey.pem;
 
@@ -139,25 +142,39 @@ server {
         add_header Cache-Control "public, no-transform";
     }
 
-    # Forward HTTPS sang Apache port 8443 (HTTPS)
+    # Forward HTTPS to Apache port 8443 (HTTPS)
 location / {
     proxy_pass https://127.0.0.1:8443;
 
-    proxy_ssl_server_name on;
+    proxy_ssl_server_name on; # Bat tinh nang SNI de NGINX gui dung ten mien khi ket noi toi Apache qua SSL
     proxy_ssl_name $host;
 
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Proto https; # Thong bao cho Laravel biet nguoi dung dang truy cap qua  https de Laravel tao cac Url co tien to https://
 
-    proxy_ssl_verify off;
+    proxy_ssl_verify off; # Bo qua viec xac thuc chung chi cua Apache
 }
 
+    # Chan nguoi dung truy cap truc tiep vao cac file an toan nhu .htaccess tu ben ngoai nginx
     location ~ /\.ht {
         deny all;
     }
 }
+# Tóm tắt mô hình hoạt động:
+
+#     Người dùng gửi yêu cầu tới laravel.vietduc.vietnix.tech.
+
+#     NGINX nhận yêu cầu.
+
+#     Nếu là ảnh/css/js: NGINX trả về ngay lập tức.
+
+#     Nếu là PHP (Laravel): NGINX chuyển tiếp yêu cầu sang Apache (cổng 8080 hoặc 8443).
+
+#     Apache xử lý code PHP và trả kết quả về cho NGINX.
+
+#     NGINX trả kết quả cuối cùng cho người dùng.
 ############################
 
 ### Wordpress
@@ -174,6 +191,7 @@ server {
         expires 30d;
         add_header Cache-Control "public, no-transform";
     }
+
 
     location / {
         proxy_pass http://127.0.0.1:8080;
@@ -234,11 +252,12 @@ sudo systemctl restart apache2
 ### File config Apache
 root@training-vietduc:/etc/apache2/sites-available# cat vietduc_apps.conf
 # Vhost for WordPress
+# Khi nhan request HTTP cong 80 day sang apache tai cong 8080
 <VirtualHost *:8080>
     ServerName wp.vietduc.vietnix.tech
-    DocumentRoot /var/www/wp.vietduc.vietnix.tech
+    DocumentRoot /var/www/wp.vietduc.vietnix.tech # Neu la wp chay code wp tai day
     <Directory /var/www/wp.vietduc.vietnix.tech>
-        AllowOverride All
+        AllowOverride All # CHo phep su dung file .htaccess de rewrite url
         Require all granted
     </Directory>
 </VirtualHost>
@@ -246,7 +265,7 @@ root@training-vietduc:/etc/apache2/sites-available# cat vietduc_apps.conf
 # Vhost for Laravel
 <VirtualHost *:8080>
     ServerName laravel.vietduc.vietnix.tech
-    DocumentRoot /var/www/laravel.vietduc.vietnix.tech/public
+    DocumentRoot /var/www/laravel.vietduc.vietnix.tech/public # Neu la laravel chay code tai day
     <Directory /var/www/laravel.vietduc.vietnix.tech/public>
         AllowOverride All
         Require all granted
@@ -254,12 +273,12 @@ root@training-vietduc:/etc/apache2/sites-available# cat vietduc_apps.conf
 </VirtualHost>
 
 # --- WORDPRESS ---
-<VirtualHost *:8443>
+<VirtualHost *:8443> #Khi Nginx nhan request HTTPS cong 443 day sang apache tai cong 8443
     ServerName wp.vietduc.vietnix.tech
     DocumentRoot /var/www/wp.vietduc.vietnix.tech
 
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/wp.vietduc.vietnix.tech/fullchain.pem
+    SSLEngine on # Apache cung tu ma hoa SSL mot lan nua (Full SSH Setup)
+    SSLCertificateFile /etc/letsencrypt/live/wp.vietduc.vietnix.tech/fullchain.pem # Su dung cung duong dan ching chi Let's Encrypt da tao truoc do
     SSLCertificateKeyFile /etc/letsencrypt/live/wp.vietduc.vietnix.tech/privkey.pem
 
 
@@ -283,6 +302,30 @@ root@training-vietduc:/etc/apache2/sites-available# cat vietduc_apps.conf
     </Directory>
 </VirtualHost>
 ############################
+
+# ## sites-available/apache_vhost.conf
+
+# root@training-vietduc:/var/www/wp.vietduc.vietnix.tech# cat /etc/apache2/sites-available/apache_vhost.conf
+# # Block cho WordPress
+# <VirtualHost *:8080 *:8443>
+#     ServerName wp.vietduc.vietnix.tech
+#     DocumentRoot /var/www/wp.vietduc.vietnix.tech
+#     <Directory /var/www/wp.vietduc.vietnix.tech>
+#         AllowOverride All
+#         Require all granted
+#     </Directory>
+# </VirtualHost>
+
+# # Block cho Laravel
+# <VirtualHost *:8080 *:8443>
+#     ServerName laravel.vietduc.vietnix.tech
+#     DocumentRoot /var/www/laravel.vietduc.vietnix.tech/public
+#     <Directory /var/www/laravel.vietduc.vietnix.tech/public>
+#         AllowOverride All
+#         Require all granted
+#     </Directory>
+# </VirtualHost>
+
 
 ```
 
@@ -340,7 +383,6 @@ root@training-vietduc:/etc/apache2/sites-available# cat vietduc_apps.conf
 
 ![alt text](image-10.png)
 
-
 - Kết quả truy cập https:
 
 ![alt text](image-11.png)
@@ -353,3 +395,13 @@ root@training-vietduc:/etc/apache2/sites-available# cat vietduc_apps.conf
   - Nếu thấy X-Powered-By: PHP/...: Thường là do Apache/PHP xử lý và đẩy ngược lại Nginx.
 
 ![alt text](image-15.png)
+
+- Cập nhật database:
+
+````bash
+ mysql -u root -p -D wordpress_db -e "UPDATE Sa3QIZ_options SET option_value = 'http://wp.vietduc.vietnix.tech' WHERE option_name IN ('siteurl', 'home');"```
+````
+
+- Xem các cổng
+
+![alt text](image-16.png)
