@@ -96,3 +96,7 @@ Cấu hình Database trên Hosting
 ![alt text](image-11.png)
 
 - Sửa file .htaccess để auto redirect về https
+
+![alt text](image-12.png)
+
+- Kết quả khi vào laravel
