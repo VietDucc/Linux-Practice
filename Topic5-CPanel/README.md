@@ -99,4 +99,6 @@ Cấu hình Database trên Hosting
 
 ![alt text](image-12.png)
 
-- Kết quả khi vào laravel
+- Kết quả khi vào laravell
+
+---
