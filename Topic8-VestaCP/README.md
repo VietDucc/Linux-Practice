@@ -209,6 +209,18 @@ chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 ```
 
+Khi một khách hàng truy cập laravel.vietduc.vietnix.tech/index.php:
+
+    Apache tiếp nhận: Nó thấy file đuôi .php.
+
+    Kiểm tra cấu hình: Nó đọc file .conf và thấy dòng SetHandler "proxy:fcgi://127.0.0.1:9000".
+
+    Bắn request đi: Apache bảo: "Này, tôi không biết chạy file này, nhưng tôi biết có một ông thợ 8.1 đang ở cổng 9000. Để tôi gửi file này qua đó!".
+
+    Nhận kết quả: Ông thợ 8.1 xử lý xong, ném kết quả HTML ngược lại cho Apache.
+
+    Trả về trình duyệt: Apache hiện kết quả đó.
+
 ![alt text](image-6.png)
 
 - Kết quả sau khi sửa lỗi 403 và cấp quyền cho Laravel
